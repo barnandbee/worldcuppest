@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup 2026 PEST Analysis Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .timer {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 3px solid #dee2e6;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+        .nav-tab {
+            padding: 18px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #495057;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .nav-tab:hover { background: #e9ecef; }
+        .nav-tab.active {
+            color: #1e3c72;
+            border-bottom: 3px solid #1e3c72;
+            background: white;
+        }
+        .content { padding: 40px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .client-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .info-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .info-item h3 { font-size: 0.9em; opacity: 0.8; margin-bottom: 8px; text-transform: uppercase; }
+        .info-item p { font-size: 1.5em; font-weight: bold; }
+        .task-brief {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .source-header {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .source-type {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .source-type.news { background: #ff6b6b; color: white; }
+        .source-type.data { background: #f9ca24; color: #333; }
+        .source-type.analysis { background: #a29bfe; color: white; }
+        .source-type.report { background: #45b7d1; color: white; }
+        .article-content {
+            line-height: 1.8;
+            color: #333;
+        }
+        .article-content h3 {
+            color: #1e3c72;
+            margin: 25px 0 15px 0;
+            font-size: 1.3em;
+        }
+        .article-content p {
+            margin-bottom: 18px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95em;
+        }
+        .data-table tr:hover { background: #f8f9fa; }
+        .highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+        .chart-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .chart-box h4 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        ul, ol { margin-left: 20px; margin-bottom: 20px; line-height: 1.8; }
+        li { margin-bottom: 10px; }
+        .callout {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .callout.info { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .callout.warning { background: #fff3e0; border-left: 4px solid #ff9800; }
+        .callout.success { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .content { padding: 20px; }
+            .nav-tab { padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 World Cup 2026 PEST Analysis</h1>
+            <p style="font-size: 1.2em; opacity: 0.9; margin-top: 10px;">GlobalVentures Capital - Strategic Assessment Dashboard</p>
+        </div>
+
+        <div class="timer" id="timer">Time Remaining: 25:00</div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('brief')">📋 Client Brief</button>
+            <button class="nav-tab" onclick="showTab('pest')">🔍 PEST Framework</button>
+            <button class="nav-tab" onclick="showTab('s1')">📰 Source 1</button>
+            <button class="nav-tab" onclick="showTab('s2')">📊 Source 2</button>
+            <button class="nav-tab" onclick="showTab('s3')">📰 Source 3</button>
+            <button class="nav-tab" onclick="showTab('s4')">📋 Source 4</button>
+            <button class="nav-tab" onclick="showTab('s5')">📰 Source 5</button>
+            <button class="nav-tab" onclick="showTab('s6')">📊 Source 6</button>
+        </div>
+
+        <div class="content">
+
+            <!-- Client Brief -->
+            <div id="brief" class="tab-content active">
+                <div class="client-card">
+                    <h2>GlobalVentures Capital</h2>
+                    <p style="font-size: 1.1em; line-height: 1.6; margin: 15px 0;">
+                        Leading strategic investment and advisory firm specializing in major international sporting events, 
+                        entertainment properties, and global brand partnerships.
+                    </p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <h3>Investment Amount</h3>
+                            <p>$120M</p>
+                        </div>
+                        <div class="info-item">
+                            <h3>Partnership Level</h3>
+                            <p>FIFA Partner</p>
+                        </div>
+                        <div class="info-item">
+                            <h3>Contract Duration</h3>
+                            <p>2024-2026</p>
+                        </div>
+                        <div class="info-item">
+                            <h3>Portfolio Value</h3>
+                            <p>$2.8B AUM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-brief">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">🎯 Your Mission</h3>
+                    <p style="line-height: 1.8; margin-bottom: 15px;">
+                        Nina J. Simonsen, COO of GlobalVentures Capital, has requested a comprehensive PEST analysis 
+                        of the 2026 FIFA World Cup sponsorship opportunity. Your team must evaluate the <strong>Political, 
+                        Economic, Social, and Technological</strong> factors that could impact this $120 million investment decision.
+                    </p>
+                    <p style="line-height: 1.8;">
+                        <strong>Deliverable:</strong> A 3-5 minute presentation with a clear recommendation: 
+                        <strong>Proceed, Proceed with Conditions, or Decline</strong>.
+                    </p>
+                </div>
+
+                <h2 style="color: #1e3c72; margin: 30px 0 20px 0;">Tournament Overview</h2>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 12px;"><strong>Format:</strong> First 48-team World Cup (expanded from 32)</li>
+                        <li style="margin-bottom: 12px;"><strong>Matches:</strong> 104 total (vs. 64 previously)</li>
+                        <li style="margin-bottom: 12px;"><strong>Host Cities:</strong> 16 across three nations</li>
+                        <li style="margin-bottom: 12px;"><strong>Expected Attendance:</strong> 5.5 million spectators</li>
+                        <li style="margin-bottom: 12px;"><strong>Global Audience:</strong> 6+ billion TV viewers projected</li>
+                        <li style="margin-bottom: 12px;"><strong>Duration:</strong> 39 days (June-July 2026)</li>
+                    </ul>
+                </div>
+
+                <h2 style="color: #1e3c72; margin: 30px 0 20px 0;">Client Priorities</h2>
+                <div class="info-grid" style="margin-top: 20px;">
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px;">
+                        <h3 style="color: #1e3c72; font-size: 1.1em; margin-bottom: 10px;">Brand Reputation</h3>
+                        <p style="font-size: 0.95em; line-height: 1.6;">Strong ESG commitments. Any partnership must align with ethical standards and sustainability goals.</p>
+                    </div>
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px;">
+                        <h3 style="color: #1e3c72; font-size: 1.1em; margin-bottom: 10px;">ROI & Market Access</h3>
+                        <p style="font-size: 0.95em; line-height: 1.6;">Expected 15-20% return through brand visibility, hospitality, and North American market penetration.</p>
+                    </div>
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px;">
+                        <h3 style="color: #1e3c72; font-size: 1.1em; margin-bottom: 10px;">Risk Management</h3>
+                        <p style="font-size: 0.95em; line-height: 1.6;">Low tolerance for reputational risk. Previous partners withdrew due to corruption scandals and human rights concerns.</p>
+                    </div>
+                    <div style="background: white; border: 2px solid #e9ecef; border-radius: 10px; padding: 20px;">
+                        <h3 style="color: #1e3c72; font-size: 1.1em; margin-bottom: 10px;">Strategic Fit</h3>
+                        <p style="font-size: 0.95em; line-height: 1.6;">Long-term sports portfolio diversification. World Cup could open doors to other FIFA tournaments.</p>
+                    </div>
+                </div>
+
+                <div class="callout info" style="margin-top: 30px;">
+                    <h3 style="color: #1565c0; margin-bottom: 15px; font-size: 1.2em;">📑 Six Source Documents Available</h3>
+                    <p style="line-height: 1.8; color: #0d47a1;">
+                        Review all six sources using the tabs above. Each contains information relevant to your PEST analysis. 
+                        <strong>Sources are NOT pre-labeled</strong> by category—your team must identify which factors are Political, 
+                        Economic, Social, or Technological, and determine which issues are most significant.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PEST Framework -->
+            <div id="pest" class="tab-content">
+                <h2 style="color: #1e3c72; margin-bottom: 30px;">What is PEST Analysis?</h2>
+                
+                <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px; line-height: 1.8;">
+                    <p style="font-size: 1.1em; margin-bottom: 20px;">
+                        <strong>PEST Analysis</strong> is a strategic framework used to evaluate external macro-environmental 
+                        factors that can impact business decisions and organizational performance. The acronym represents four key categories:
+                    </p>
+                    
+                    <div style="background: white; padding: 20px; margin: 15px 0; border-left: 4px solid #667eea; border-radius: 5px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">🏛️ Political</h4>
+                        <p>Government policies, regulations, political stability, international relations, legal frameworks</p>
+                        <p style="margin-top: 10px; font-size: 0.95em; color: #666;"><em>Consider: How might government actions, laws, regulations, or political events affect the opportunity?</em></p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; margin: 15px 0; border-left: 4px solid #4ecdc4; border-radius: 5px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">💰 Economic</h4>
+                        <p>Economic growth, market conditions, inflation, currency exchange rates, consumer spending patterns</p>
+                        <p style="margin-top: 10px; font-size: 0.95em; color: #666;"><em>Consider: What economic factors could influence costs, revenues, or market attractiveness?</em></p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; margin: 15px 0; border-left: 4px solid #ff6b6b; border-radius: 5px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">👥 Social</h4>
+                        <p>Cultural trends, demographics, consumer attitudes, social movements, public opinion</p>
+                        <p style="margin-top: 10px; font-size: 0.95em; color: #666;"><em>Consider: How might public opinion, cultural values, or demographic shifts impact the opportunity?</em></p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; margin: 15px 0; border-left: 4px solid #f9ca24; border-radius: 5px;">
+                        <h4 style="color: #1e3c72; margin-bottom: 10px;">💻 Technological</h4>
+                        <p>Innovation, digital transformation, infrastructure, automation, emerging technologies</p>
+                        <p style="margin-top: 10px; font-size: 0.95em; color: #666;"><em>Consider: What technological developments could create opportunities or challenges?</em></p>
+                    </div>
+                </div>
+
+                <div class="callout warning">
+                    <h3 style="color: #e65100; margin-bottom: 15px;">⚠️ Important Note for Your Team</h3>
+                    <p style="line-height: 1.8; color: #bf360c;">
+                        The six source documents in this dashboard are <strong>NOT labeled or organized</strong> by PEST category. 
+                        This is intentional. Your team must:
+                    </p>
+                    <ol style="color: #bf360c; margin-top: 15px;">
+                        <li>Read each source carefully</li>
+                        <li>Identify which information belongs in each PEST category</li>
+                        <li>Recognize that some sources contain information relevant to multiple categories</li>
+                        <li>Determine which factors are most significant for the investment decision</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- SOURCE 1: Long investigative piece -->
+            <div id="s1" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type news">Investigative Report</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">FIFA's Sponsorship Crisis: Why Global Brands Are Staying Away</h2>
+                    <p style="color: #6c757d;">Financial Times Business | November 12, 2024 | Sarah Chen & Michael Rodriguez | 8 min read</p>
+                </div>
+
+                <div class="article-content">
+                    <p><strong>ZURICH</strong> — FIFA is struggling to secure corporate sponsors for the 2026 World Cup despite reducing prices by up to 25% and offering unprecedented flexibility in partnership terms. With 18 months until tournament start, three FIFA Partner slots (highest tier) and five World Cup Sponsor positions remain unfilled—unprecedented in modern World Cup history.</p>
+
+                    <p>According to documents reviewed by the Financial Times and interviews with executives at eight major corporations that declined FIFA's approaches, the reluctance stems from reputational concerns, demanding stakeholder scrutiny, and questions about ROI in the complex tri-national format.</p>
+
+                    <h3>The Qatar Shadow</h3>
+
+                    <p>Two years after Qatar 2022 concluded, the tournament's controversies continue to haunt FIFA's commercial operations. A Guardian investigation estimated over 6,500 migrant workers from India, Pakistan, Nepal, Bangladesh, and Sri Lanka died in Qatar since winning hosting rights in 2010, many during infrastructure construction.</p>
+
+                    <p>"We conducted extensive due diligence on a potential FIFA partnership," said a senior executive at a Fortune 100 technology company, speaking anonymously. "Our employee resource groups, particularly those focused on human rights, made it clear they'd be uncomfortable with the association. When we ran the numbers on potential negative brand impact versus positive exposure, the ROI case fell apart."</p>
+
+                    <p>A survey of 45 CMOs at major global brands (Sports Marketing Quarterly, October 2024) found 67% view FIFA association as reputational risk, up from 34% in 2018.</p>
+
+                    <div class="chart-box">
+                        <h4>Consumer Sentiment Survey Results</h4>
+                        <p style="margin-bottom: 15px;">"Would FIFA sponsorship make you LESS likely to purchase from a brand?"</p>
+                        <table class="data-table">
+                            <tr><th>Age Group</th><th>Yes, Less Likely</th><th>No Difference</th><th>More Likely</th></tr>
+                            <tr><td>18-24</td><td><span class="highlight">64%</span></td><td>28%</td><td>8%</td></tr>
+                            <tr><td>25-34</td><td><span class="highlight">58%</span></td><td>31%</td><td>11%</td></tr>
+                            <tr><td>35-49</td><td>47%</td><td>39%</td><td>14%</td></tr>
+                            <tr><td>50-64</td><td>38%</td><td>44%</td><td>18%</td></tr>
+                            <tr><td>65+</td><td>29%</td><td>48%</td><td>23%</td></tr>
+                        </table>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;"><em>Source: Edelman Brand Trust Survey 2024, N=12,000</em></p>
+                    </div>
+
+                    <h3>The Price of Principle</h3>
+
+                    <p>Several high-profile sponsors have walked away. Emirates, Sony, Continental, and Castrol all declined to renew partnerships expiring after 2014 or 2018 tournaments. While some cited shifting marketing priorities, private conversations reveal deeper concerns about FIFA's governance.</p>
+
+                    <p>"The 2015 corruption scandal created initial damage," explains Dr. Jennifer Walsh, Columbia Business School. "But Qatar cemented FIFA's reputation problem. Sponsors now recognize that FIFA association comes with genuine downside risk—potential harm to brand equity, particularly among younger consumers making purchasing decisions based on corporate values."</p>
+
+                    <h3>Tri-Nation Complexity</h3>
+
+                    <p>Beyond reputational concerns, sponsors face unprecedented operational complexity. The 2026 tournament will be first hosted by three nations, with 11 US cities, 3 Mexican cities, and 2 Canadian cities across an area larger than Europe.</p>
+
+                    <p>"From pure execution standpoint, it's a nightmare," said Tom Branson, Global Sports Partners. "Three regulatory frameworks, three currencies, three sets of consumer protection laws, three privacy regimes. Activation costs are 40-50% higher than single-nation tournaments, but projected reach isn't proportionally larger."</p>
+
+                    <p>Currency risk alone adds significant complexity. Sponsorship fees denominated in USD, but activation spending in three currencies. Historical analysis shows 12-18% exchange rate fluctuations typical over 24-month cycles, adding $4-6M in hedging costs for $120M sponsorship.</p>
+
+                    <h3>The Chinese Question</h3>
+
+                    <p>FIFA found some relief from Chinese companies. Wanda Group, Vivo, Mengniu, and others filled gaps worth ~$800M combined, representing China's strategy to build global influence through sports.</p>
+
+                    <p>However, geopolitical tensions complicate this. Western sponsors privately express concern about sharing FIFA Partner platform with Chinese state-linked enterprises.</p>
+
+                    <p>"There's a scenario where a global brand finds itself at FIFA event with its logo next to a Chinese company on a US watchlist or facing sanctions," said one executive. "That's a Board-level risk conversation."</p>
+
+                    <h3>FIFA's Defense</h3>
+
+                    <p>FIFA rejects characterizations of sponsorship crisis. "We have strong interest from multiple categories and expect announcements in coming months," said spokesperson. "2026 will be most commercially successful tournament in history."</p>
+
+                    <p>FIFA points to successful renewals from Adidas, Coca-Cola, Hyundai, Visa. Organization notes 48-team format generates 60% more matches, creating additional commercial inventory.</p>
+
+                    <p>President Infantino emphasizes governance reforms since 2015: strengthened ethics committees, enhanced financial transparency, new human rights policies.</p>
+
+                    <h3>The Clock Is Ticking</h3>
+
+                    <p>With 18 months until kickoff, FIFA faces narrowing window. Industry experts suggest companies need 12-15 months lead time for comprehensive activation campaigns.</p>
+
+                    <p>"If FIFA can't close deals by mid-2025, they'll be forced into further price reductions or accepting lower-tier brands," said Walsh. "That creates downward spiral where value proposition deteriorates further."</p>
+
+                    <p>For corporations still considering FIFA partnerships, the decision represents fundamental tension between commercial opportunity and values-based risk management. World Cup offers unparalleled reach, but in an era of heightened corporate accountability, that reach comes with reputational strings attached.</p>
+                </div>
+            </div>
+
+            <!-- SOURCE 2: Data-heavy briefing -->
+            <div id="s2" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type data">Market Data Report</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">North American Sports & Entertainment Market Intelligence Brief</h2>
+                    <p style="color: #6c757d;">Nielsen Sports Intelligence | Q4 2024</p>
+                </div>
+
+                <div class="article-content">
+                    <h3>Economic Indicators: Host Nation Overview</h3>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Indicator</th>
+                                <th>United States</th>
+                                <th>Canada</th>
+                                <th>Mexico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>GDP Growth 2024</strong></td><td>2.1%</td><td>1.8%</td><td>2.4%</td></tr>
+                            <tr><td><strong>GDP Growth 2025</strong></td><td>2.3%</td><td>2.1%</td><td>2.0%</td></tr>
+                            <tr><td><strong>GDP Growth 2026</strong></td><td>2.4%</td><td>2.2%</td><td>2.2%</td></tr>
+                            <tr><td><strong>Inflation Rate (current)</strong></td><td>2.8%</td><td>2.4%</td><td>4.1%</td></tr>
+                            <tr><td><strong>Unemployment Rate</strong></td><td>3.9%</td><td>5.2%</td><td>3.1%</td></tr>
+                            <tr><td><strong>Consumer Confidence Index</strong></td><td>102.3</td><td>95.7</td><td>88.4</td></tr>
+                            <tr><td><strong>Median HH Income (USD)</strong></td><td>$74,580</td><td>$66,800</td><td>$19,200</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;"><em>Source: IMF World Economic Outlook, October 2024</em></p>
+
+                    <h3>Football/Soccer Market Penetration</h3>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Market Segment</th>
+                                <th>% Interested</th>
+                                <th>Avg. Hours/Month</th>
+                                <th>Pay Premium for Content?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>US: Ages 18-24</strong></td><td>71%</td><td>4.2</td><td>38%</td></tr>
+                            <tr><td><strong>US: Ages 25-34</strong></td><td>63%</td><td>5.1</td><td>45%</td></tr>
+                            <tr><td><strong>US: Hispanic/Latino</strong></td><td><span class="highlight">87%</span></td><td><span class="highlight">8.2</span></td><td>62%</td></tr>
+                            <tr><td><strong>US: Overall</strong></td><td>47%</td><td>3.4</td><td>32%</td></tr>
+                            <tr><td><strong>Canada: Overall</strong></td><td>58%</td><td>3.8</td><td>41%</td></tr>
+                            <tr><td><strong>Mexico: Overall</strong></td><td><span class="highlight">89%</span></td><td><span class="highlight">9.7</span></td><td>71%</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Sponsorship Market Context</h3>
+
+                    <p><strong>North American Sports Sponsorship Market (2024):</strong> $24.5 billion (+6.8% YoY)</p>
+
+                    <div class="chart-box">
+                        <h4>Average Sponsorship ROI by Category (Brand Value Lift ÷ Total Investment)</h4>
+                        <ul style="margin-top: 10px;">
+                            <li><strong>Beverages (Non-Alcohol):</strong> 4.1:1 ROI</li>
+                            <li><strong>Financial Services:</strong> 3.4:1 ROI</li>
+                            <li><strong>Telecom:</strong> 2.9:1 ROI</li>
+                            <li><strong>Automotive:</strong> 2.8:1 ROI</li>
+                            <li><strong>Technology:</strong> 2.6:1 ROI</li>
+                        </ul>
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;"><em>Note: FIFA's reputational challenges may compress returns by 15-25% compared to "clean" properties</em></p>
+                    </div>
+
+                    <h3>Digital Consumption Trends</h3>
+
+                    <p><strong>How North American Fans Watch Soccer (2024):</strong></p>
+
+                    <table class="data-table">
+                        <tr><th>Platform</th><th>Ages 18-24</th><th>Ages 25-34</th><th>Ages 35-49</th><th>Ages 50+</th></tr>
+                        <tr><td>Traditional TV</td><td>18%</td><td>31%</td><td>52%</td><td>74%</td></tr>
+                        <tr><td>Streaming Services</td><td>35%</td><td><span class="highlight">45%</span></td><td>34%</td><td>18%</td></tr>
+                        <tr><td>Social Media Clips</td><td><span class="highlight">42%</span></td><td>19%</td><td>9%</td><td>4%</td></tr>
+                        <tr><td>Mobile Apps</td><td>5%</td><td>5%</td><td>5%</td><td>4%</td></tr>
+                    </table>
+
+                    <h3>Ticket Pricing Analysis</h3>
+
+                    <table class="data-table">
+                        <tr><th>Match Type</th><th>Category 1 (Best)</th><th>Category 4 (Cheapest)</th></tr>
+                        <tr><td>Group Stage</td><td>$340</td><td>$85</td></tr>
+                        <tr><td>Round of 32</td><td>$450</td><td>$110</td></tr>
+                        <tr><td>Quarter-Final</td><td>$750</td><td>$180</td></tr>
+                        <tr><td>Final</td><td>$2,450</td><td>$550</td></tr>
+                    </table>
+                    <p style="font-size: 0.95em; color: #666; margin-top: 10px;"><em>Represents 35% average increase vs. 2018 Russia prices</em></p>
+
+                    <p><strong>Affordability Context:</strong></p>
+                    <ul>
+                        <li>US Urban Areas: Category 4 group stage = 0.5% of median annual income (highly affordable)</li>
+                        <li>Canadian Cities: Category 4 group stage = 0.6% of median annual income (highly affordable)</li>
+                        <li>Mexico Working Class: Category 4 group stage = 1.7% of median annual income (considerable expense, ~1 week's wages)</li>
+                    </ul>
+
+                    <h3>Technology Investment Overview</h3>
+
+                    <p><strong>Total Investment Across 16 Venues: $450 million</strong></p>
+
+                    <ul>
+                        <li>Smart Stadium Systems (IoT, apps, contactless): $180M (40%)</li>
+                        <li>Broadcast Technology (8K, VAR, tracking): $95M (21%)</li>
+                        <li>Cybersecurity (monitoring, response): $85M (19%)</li>
+                        <li>Blockchain Ticketing (NFT platform): $55M (12%)</li>
+                        <li>5G Infrastructure: $35M (8%)</li>
+                    </ul>
+
+                    <div class="callout success">
+                        <h4 style="color: #2e7d32; margin-bottom: 10px;">Key Insights</h4>
+                        <p style="color: #1b5e20; line-height: 1.7;">
+                            <strong>Opportunities:</strong> Growing soccer interest among key demographics, strong economic fundamentals, 
+                            technology infrastructure enabling unprecedented engagement, combined market of 580M population/$28T GDP.
+                        </p>
+                        <p style="color: #1b5e20; line-height: 1.7; margin-top: 10px;">
+                            <strong>Challenges:</strong> Soccer ranks 5th in US consumption, premium pricing limits accessibility 
+                            (especially Mexico), tri-nation format adds 40-50% to costs, younger audiences consume via clips not broadcasts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOURCE 3: Medium security/political article -->
+            <div id="s3" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type news">Security Analysis</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">World Cup 2026 Security: Unprecedented Challenges in Tri-National Coordination</h2>
+                    <p style="color: #6c757d;">Washington Security Review | November 15, 2024 | Marcus Thompson | 5 min read</p>
+                </div>
+
+                <div class="article-content">
+                    <p><strong>WASHINGTON</strong> — The 2026 FIFA World Cup will require the most complex security operation in international sports history, with US Department of Homeland Security coordinating with Canadian and Mexican counterparts to protect an estimated 5.5 million spectators across 16 cities.</p>
+
+                    <p>At a cost exceeding $1.2 billion, the operation will involve 8,500+ federal personnel, 15,000 state/local law enforcement officers, and 12,000 private contractors. But experts warn the distributed nature creates vulnerabilities impossible in single-nation events.</p>
+
+                    <h3>Cross-Border Complexities</h3>
+
+                    <p>"This isn't just about protecting stadiums," explains Dr. Rachel Morrison, former DHS Assistant Secretary. "Teams, officials, media, fans will cross international borders multiple times. Each crossing is a potential bottleneck and security screening point. The logistics are staggering."</p>
+
+                    <p><strong>Current visa processing times compound challenges:</strong></p>
+                    <ul>
+                        <li>Brazil: 478 days average wait</li>
+                        <li>Argentina: 412 days</li>
+                        <li>Colombia: 445 days</li>
+                        <li>Nigeria: 389 days</li>
+                        <li>India: 365 days</li>
+                    </ul>
+
+                    <p>Mexican officials frustrated that fans traveling to Mexican cities from South America/Africa need US transit visas even if never entering US, simply because flight routes pass through US airspace.</p>
+
+                    <p>"We're essentially held hostage to US immigration policy," said one Canadian official anonymously. "Brazilian fan flying to Vancouver needs US transit visa, which takes over a year. That fan won't come, hurting our economy and atmosphere."</p>
+
+                    <h3>Cyber Threat Assessment</h3>
+
+                    <p>Intelligence agencies designated World Cup as "high-priority target" for cyberattacks. Primary threats:</p>
+
+                    <ul>
+                        <li><strong>Ransomware on stadium systems</strong> - could force match cancellations</li>
+                        <li><strong>Ticketing fraud and account compromise</strong> - affecting hundreds of thousands</li>
+                        <li><strong>Broadcast infrastructure disruption</strong> - DDoS attacks or satellite interference</li>
+                        <li><strong>Misinformation campaigns</strong> - fake emergency alerts, coordinated manipulation</li>
+                        <li><strong>Sponsor database breaches</strong> - targeting customer data and financial information</li>
+                    </ul>
+
+                    <p>"2018 Winter Olympics saw 'Olympic Destroyer' malware disrupt opening ceremony," notes Christopher Krebs, former CISA Director. "World Cup is even more attractive because of corporate sponsors. Potential losses in hundreds of millions if attacks succeed."</p>
+
+                    <p>FIFA allocated $85M for cybersecurity, establishing 24/7 Cyber Fusion Center monitoring all tournament digital infrastructure.</p>
+
+                    <div class="chart-box">
+                        <h4>Political Stability Index - Selected Host Cities</h4>
+                        <p style="margin-bottom: 10px; font-size: 0.95em; color: #666;">Scale: 0-100 (higher = more stable) | Source: International Governance Institute 2024</p>
+                        <table class="data-table">
+                            <tr><td>Toronto</td><td>89</td></tr>
+                            <tr><td>Vancouver</td><td>87</td></tr>
+                            <tr><td>New York/New Jersey</td><td>82</td></tr>
+                            <tr><td>Los Angeles</td><td>79</td></tr>
+                            <tr><td>Dallas</td><td>76</td></tr>
+                            <tr><td>Mexico City</td><td>71</td></tr>
+                            <tr><td>Monterrey</td><td>68</td></tr>
+                        </table>
+                    </div>
+
+                    <h3>Physical Security Concerns</h3>
+
+                    <p>Beyond cyber threats:</p>
+                    <ul>
+                        <li><strong>Terrorism prevention:</strong> Soft targets like fan zones, transportation hubs remain vulnerable</li>
+                        <li><strong>Organized crime:</strong> Parts of Mexico face cartel-related violence (host cities selected for stability)</li>
+                        <li><strong>Mass shooting risk:</strong> US gun violence creates unique concerns for international visitors</li>
+                        <li><strong>Civil unrest:</strong> Potential protests regarding FIFA corruption, environmental impact, social justice</li>
+                    </ul>
+
+                    <h3>Coordination Challenges</h3>
+
+                    <p>"We've never done anything like this," admits senior DHS official. "2002 World Cup in South Korea/Japan had far less cross-border movement. Here, teams could play Houston one day, Toronto three days later. Every movement is logistical and security operation."</p>
+
+                    <p>Joint operations centers will be established in each host city, staffed by representatives from all three nations. Real-time intelligence sharing platforms enable rapid response, but system remains untested at this scale.</p>
+
+                    <h3>Implications for Sponsors</h3>
+
+                    <p>Security challenges translate to direct costs and reputational risks. FIFA requires sponsors to implement enhanced cybersecurity at own expense: typically $2-4M additional.</p>
+
+                    <p>"If there's major incident—cyber or physical—sponsors will be associated with it," warns Morrison. "Successful attack on ticketing could compromise sponsor customer databases. Stadium incident could taint entire tournament. These are insurable risks, but reputational damage isn't."</p>
+
+                    <p><strong>Insurance Impact:</strong> Cyber liability premiums increased 40-60% vs. previous tournaments. Several major insurers declined coverage altogether.</p>
+                </div>
+            </div>
+
+            <!-- SOURCE 4: Short environmental brief -->
+            <div id="s4" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type report">Environmental Brief</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">Carbon Footprint Analysis: World Cup 2026 Environmental Impact Assessment</h2>
+                    <p style="color: #6c757d;">Centre for Climate Policy & Sports | November 2024 | 3 min read</p>
+                </div>
+
+                <div class="article-content">
+                    <p>FIFA committed to "carbon-neutral" 2026 World Cup, but independent analysis suggests tri-national format will produce largest carbon footprint of any World Cup in history.</p>
+
+                    <h3>Projected Total Emissions</h3>
+
+                    <table class="data-table">
+                        <tr><th>Emission Source</th><th>CO₂ (Metric Tons)</th><th>% of Total</th></tr>
+                        <tr><td>International Fan Air Travel</td><td>2,800,000</td><td>63%</td></tr>
+                        <tr><td>Domestic Travel (incl. teams)</td><td>850,000</td><td>19%</td></tr>
+                        <tr><td>Team/Official Air Travel</td><td>425,000</td><td>10%</td></tr>
+                        <tr><td>Stadium Operations</td><td>350,000</td><td>8%</td></tr>
+                        <tr><td>Broadcasting & Media</td><td>225,000</td><td>5%</td></tr>
+                        <tr><td>Renewable Energy Offset</td><td>-240,000</td><td>-5%</td></tr>
+                        <tr style="background: #ffebee;"><td><strong>NET TOTAL EMISSIONS</strong></td><td><strong>4,410,000</strong></td><td><strong>100%</strong></td></tr>
+                    </table>
+                    <p style="font-size: 0.9em; color: #666;"><em>Equivalent to annual emissions from 958,000 passenger vehicles</em></p>
+
+                    <h3>Historical Comparison</h3>
+
+                    <table class="data-table">
+                        <tr><th>Tournament</th><th>Total Emissions</th><th>Per Match</th></tr>
+                        <tr style="background: #ffebee;"><td><strong>2026 USA/CAN/MEX</strong></td><td><strong>4,410,000 MT</strong></td><td>42,404 MT</td></tr>
+                        <tr><td>2022 Qatar</td><td>3,630,000 MT</td><td>56,719 MT</td></tr>
+                        <tr><td>2018 Russia</td><td>2,160,000 MT</td><td>33,750 MT</td></tr>
+                        <tr><td>2014 Brazil</td><td>2,720,000 MT</td><td>42,500 MT</td></tr>
+                    </table>
+
+                    <h3>The Travel Problem</h3>
+
+                    <p>Tri-national format creates unprecedented travel requirements. Teams advancing deep into tournament could fly 15,000+ miles across North America.</p>
+
+                    <p><strong>Example Journey (team reaching final):</strong></p>
+                    <p>Mexico City → Vancouver (2,700mi) → Miami (3,100mi) → Dallas (1,100mi) → Boston (1,800mi) → Los Angeles (2,600mi) → New Jersey (2,800mi) = <strong>14,100 total miles</strong></p>
+
+                    <h3>Regulatory Landscape: Three Different Standards</h3>
+
+                    <table class="data-table">
+                        <tr><th>Policy</th><th>Canada</th><th>United States</th><th>Mexico</th></tr>
+                        <tr><td>Carbon Pricing</td><td>$80/ton (→$170 by 2030)</td><td>No federal tax; state-level variation</td><td>Introduced 2022; limited enforcement</td></tr>
+                        <tr><td>Renewable Mandate</td><td>90% clean electricity by 2030</td><td>State-level only (CA, NY ambitious)</td><td>35% renewable by 2024</td></tr>
+                        <tr><td>Event Reporting</td><td>Mandatory for major events</td><td>Voluntary (except CA, WA)</td><td>Voluntary</td></tr>
+                    </table>
+
+                    <h3>Consumer & Investor Expectations</h3>
+
+                    <ul>
+                        <li>71% of investors consider climate performance in investment decisions (2024)</li>
+                        <li>64% of consumers (18-34) prefer brands with strong sustainability commitments</li>
+                        <li>43% say environmental impact would influence their view of World Cup sponsors</li>
+                        <li>Environmental groups announced plans to target sponsors of "climate-damaging mega-events"</li>
+                    </ul>
+
+                    <h3>Criticism of Offset Strategy</h3>
+
+                    <p>"Offsetting is fine as last resort, but priority should be avoiding emissions in first place," said Dr. Elena Rodriguez, climate policy researcher. "FIFA chose tri-national format despite climate implications."</p>
+
+                    <p>Questions persist about offset quality. 2023 investigation found up to 90% of rainforest carbon credits may be "phantom credits" not delivering claimed climate benefits.</p>
+
+                    <div class="callout warning">
+                        <h4 style="color: #e65100; margin-bottom: 10px;">Bottom Line for Sponsors</h4>
+                        <p style="color: #bf360c; line-height: 1.7;">
+                            Sponsors with strong sustainability commitments may face scrutiny for associating with 4.4M metric ton event. 
+                            Robust sustainability messaging, independent verification of offset programs, and clear environmental conditions 
+                            may be necessary to defend partnership to stakeholders.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOURCE 5: Long cultural/social analysis -->
+            <div id="s5" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type analysis">Social & Cultural Analysis</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">LGBTQ+ Rights, Worker Safety, and Social Values: Navigating Ethical Complexities at World Cup 2026</h2>
+                    <p style="color: #6c757d;">The Guardian Sport & Society + OutSports Magazine | November 10, 2024 | Joint Investigation | 7 min read</p>
+                </div>
+
+                <div class="article-content">
+                    <p><strong>NEW YORK / LONDON</strong> — As FIFA prepares for the 2026 World Cup, the organization faces intense scrutiny over social and ethical issues ranging from LGBTQ+ rights to labor standards to broader questions about corporate responsibility in sports.</p>
+
+                    <h3>LGBTQ+ Protections: A Patchwork of Rights</h3>
+
+                    <p>Coalition of 40+ LGBTQ+ advocacy organizations sent joint letter to FIFA demanding specific anti-discrimination protections in all 16 host cities.</p>
+
+                    <p><strong>The Legal Landscape Varies Dramatically:</strong></p>
+
+                    <p><strong>CANADA - Strongest Protections:</strong></p>
+                    <ul>
+                        <li>Federal anti-discrimination protections in all areas</li>
+                        <li>Same-sex marriage legal since 2005</li>
+                        <li>Conversion therapy banned nationwide</li>
+                        <li>Toronto/Vancouver both have comprehensive local protections</li>
+                        <li>Public support: 80%+ in polling</li>
+                    </ul>
+
+                    <p><strong>UNITED STATES - State-by-State Variation:</strong></p>
+                    <ul>
+                        <li><em>Strong protection states:</em> California, New York, Massachusetts, New Jersey, Washington - comprehensive state/local protections</li>
+                        <li><em>Limited protection states:</em> Texas (Dallas, Houston) - no statewide protections, transgender restrictions; Florida (Miami) - "Don't Say Gay" laws, hostile legislative environment; Kansas (Kansas City) - no statewide protections</li>
+                    </ul>
+
+                    <p><strong>MEXICO - Mixed Picture:</strong></p>
+                    <ul>
+                        <li>Same-sex marriage legal nationwide since 2022</li>
+                        <li>Federal anti-discrimination laws exist but enforcement inconsistent</li>
+                        <li>Mexico City progressive with strong protections</li>
+                        <li>Monterrey, Guadalajara more conservative; lower social acceptance</li>
+                    </ul>
+
+                    <p>"After what LGBTQ+ fans experienced in Qatar—where same-sex relationships are illegal, rainbow flags confiscated, fans felt unsafe—we cannot accept vague promises," said Sarah Kate Ellis, GLAAD President.</p>
+
+                    <h3>FIFA's Qatar Legacy: The Reputational Crisis</h3>
+
+                    <p>New comprehensive polling (15,000 respondents across 12 countries, October 2024) reveals lasting damage:</p>
+
+                    <p><strong>Overall FIFA Favorability:</strong></p>
+                    <ul>
+                        <li>Very/Somewhat Unfavorable: <span class="highlight">62%</span></li>
+                        <li>Neutral: 21%</li>
+                        <li>Favorable: 17%</li>
+                    </ul>
+
+                    <p><strong>Ages 18-34 (Key Target Demographic):</strong></p>
+                    <ul>
+                        <li>Unfavorable: <span class="highlight">62%</span></li>
+                        <li>Neutral: 19%</li>
+                        <li>Favorable: 19%</li>
+                    </ul>
+
+                    <p><strong>Primary Public Concerns About FIFA:</strong></p>
+                    <ol>
+                        <li>Worker Rights - 68% (awareness of ~6,500 migrant worker deaths in Qatar remains high)</li>
+                        <li>Corruption - 64% (2015 scandal maintains salience)</li>
+                        <li>Sportswashing - 47% (authoritarian regimes using football for reputation laundering)</li>
+                        <li>Environmental Impact - 43%</li>
+                        <li>Lack of Transparency - 41%</li>
+                    </ol>
+
+                    <h3>Impact on Brand Perception</h3>
+
+                    <p>"If a brand you regularly purchase became a FIFA sponsor, would that change your perception?"</p>
+
+                    <table class="data-table">
+                        <tr><th>Response</th><th>All Ages</th><th>18-34</th></tr>
+                        <tr><td>Much More Negative</td><td>23%</td><td>31%</td></tr>
+                        <tr><td>Somewhat More Negative</td><td>34%</td><td>33%</td></tr>
+                        <tr><td>No Change</td><td>28%</td><td>24%</td></tr>
+                        <tr><td>Somewhat/Much More Positive</td><td>15%</td><td>12%</td></tr>
+                    </table>
+
+                    <p><strong>Critical Finding: 57% of all consumers (64% of 18-34 year-olds) would view brands more negatively for FIFA sponsorship.</strong></p>
+
+                    <h3>Regional Sentiment Variation</h3>
+
+                    <p><strong>Most Negative:</strong> UK (72% unfavorable), Germany (68%), Australia (66%)</p>
+                    <p><strong>Mixed:</strong> US (61% unfavorable), Canada (59%), France (58%)</p>
+                    <p><strong>More Favorable:</strong> Mexico (42% unfavorable), Brazil (45%), Nigeria (38%)</p>
+
+                    <p><em>Traditional European markets show strongest negative reactions; emerging markets remain more positive.</em></p>
+
+                    <h3>The Qatar Worker Deaths</h3>
+
+                    <p>Statistics that continue to resonate with public:</p>
+                    <ul>
+                        <li>6,500+ migrant worker deaths during World Cup construction</li>
+                        <li>Reports of workers' passports confiscated</li>
+                        <li>Inadequate working conditions in extreme heat</li>
+                        <li>Minimal compensation for families</li>
+                        <li>Last-minute alcohol restrictions blindsiding sponsors (Budweiser)</li>
+                    </ul>
+
+                    <p>"What happened in Qatar wasn't a PR problem, it was a human rights crisis. And the public hasn't forgotten," said Sarah Henderson, Human Rights Watch sports program director.</p>
+
+                    <h3>Consumer Activism & ESG Pressure</h3>
+
+                    <p>Modern consumers increasingly make purchasing decisions based on corporate values:</p>
+                    <ul>
+                        <li>64% of consumers (especially Gen Z) consider corporate ethics important</li>
+                        <li>Social media amplifies controversies rapidly</li>
+                        <li>87% of sponsors now include ESG criteria in partnership evaluations</li>
+                        <li>23% of potential sponsors walked away from deals in 2024 due to ESG concerns (up from 8% in 2020)</li>
+                    </ul>
+
+                    <p>Brands that sponsored Qatar 2022 faced boycott campaigns and employee petitions, though measurable sales impact was limited.</p>
+
+                    <h3>FIFA Reform Efforts</h3>
+
+                    <p>President Infantino emphasizes reforms: enhanced human rights policies, greater bidding transparency, strengthened ethics committee, sustainability commitments.</p>
+
+                    <p><strong>Critics respond:</strong> "Reforms are cosmetic rather than structural. Until meaningful accountability for past abuses, FIFA's reputation remains damaged," said Bonita Mersiades, transparency campaigner.</p>
+
+                    <div class="callout warning">
+                        <h4 style="color: #e65100; margin-bottom: 10px;">Sponsor Considerations</h4>
+                        <p style="color: #bf360c; line-height: 1.7;">
+                            <strong>Risks:</strong> Association with insufficient LGBTQ+ protections, lingering worker rights crisis, 
+                            57% of consumers view FIFA sponsors more negatively
+                        </p>
+                        <p style="color: #bf360c; line-height: 1.7; margin-top: 10px;">
+                            <strong>Opportunities:</strong> Sponsors could drive positive change by making protections/ethics conditions of partnership, 
+                            North American context allows more progressive stance than Qatar
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOURCE 6: Tech/data briefing -->
+            <div id="s6" class="tab-content">
+                <div class="source-header">
+                    <span class="source-type data">Technology & Market Briefing</span>
+                    <h2 style="color: #1e3c72; margin: 15px 0;">Digital Innovation at World Cup 2026: Smart Stadiums, AI, and the Changing Fan Experience</h2>
+                    <p style="color: #6c757d;">Deloitte Digital Sports Practice + MIT Technology Review | October 2024 | 4 min read</p>
+                </div>
+
+                <div class="article-content">
+                    <p>2026 will be most technologically advanced sporting event in history. $450M invested in smart stadiums, AI personalization, and digital engagement across 16 venues. For sponsors: unprecedented opportunity AND significant risk.</p>
+
+                    <h3>Smart Stadium Capabilities</h3>
+
+                    <p><strong>Every venue will feature:</strong></p>
+                    <ul>
+                        <li><strong>Mobile-First Experience:</strong> Dedicated app for ticketing, concessions ordering (reduces wait times 60%), seat upgrades, instant replays, AR wayfinding</li>
+                        <li><strong>5G Connectivity:</strong> Ultra-high-bandwidth supporting 50,000+ simultaneous connections</li>
+                        <li><strong>IoT Sensors:</strong> Smart parking, queue management (shows restroom/concession wait times), climate control, crowd density monitoring</li>
+                        <li><strong>Contactless Everything:</strong> All payments via mobile wallet, biometric entry options, touchless fixtures</li>
+                    </ul>
+
+                    <p><strong>Pilot Program Results (MLS/NFL venues):</strong></p>
+                    <table class="data-table">
+                        <tr><th>Metric</th><th>Traditional</th><th>Smart Stadium</th><th>Change</th></tr>
+                        <tr><td>App Adoption Rate</td><td>23%</td><td>76%</td><td>+230%</td></tr>
+                        <tr><td>Avg. Concession Wait</td><td>18 min</td><td>7 min</td><td>-61%</td></tr>
+                        <tr><td>Per-Fan Revenue</td><td>$42</td><td>$67</td><td>+60%</td></tr>
+                        <tr><td>Fan Satisfaction</td><td>7.2/10</td><td>8.7/10</td><td>+21%</td></tr>
+                    </table>
+
+                    <h3>AI-Powered Personalization</h3>
+
+                    <p>Machine learning algorithms deliver individual-level personalized experiences at scale, analyzing fan behavior, preferences, and real-time context for customized content and offers.</p>
+
+                    <table class="data-table">
+                        <tr><th>Performance Metric</th><th>Traditional Marketing</th><th>AI Personalization</th><th>Improvement</th></tr>
+                        <tr><td>Click-Through Rate</td><td>1.2%</td><td>4.7%</td><td><span class="highlight">+292%</span></td></tr>
+                        <tr><td>Conversion Rate</td><td>0.8%</td><td>2.6%</td><td><span class="highlight">+225%</span></td></tr>
+                        <tr><td>Engagement Time</td><td>32 sec</td><td>2 min 18 sec</td><td>+331%</td></tr>
+                        <tr><td>Brand Recall</td><td>28%</td><td>61%</td><td>+118%</td></tr>
+                        <tr><td>Cost Per Acquisition</td><td>$47</td><td>$18</td><td>-62%</td></tr>
+                    </table>
+
+                    <h3>Blockchain Ticketing Innovation</h3>
+
+                    <p>NFT-based tickets with smart contracts combat fraud and scalping. Each ticket is unique digital token, cryptographically secured. Smart contracts automatically limit resale to 20% markup above face value.</p>
+
+                    <p><strong>Pilot Results vs. Traditional Ticketing:</strong></p>
+                    <ul>
+                        <li>Counterfeit Rate: 0.3% (vs. 8.3% traditional) = <strong>96% reduction</strong></li>
+                        <li>Average Resale Markup: 18% (vs. 287% traditional) = <strong>94% reduction</strong></li>
+                        <li>Transfer Fraud: 0.1% (vs. 5.2%) = <strong>98% reduction</strong></li>
+                        <li>Entry Processing Time: 8 seconds (vs. 45 seconds) = <strong>82% faster</strong></li>
+                    </ul>
+
+                    <h3>Media Consumption Transformation</h3>
+
+                    <p>Traditional TV viewership declining, especially among younger demographics:</p>
+
+                    <table class="data-table">
+                        <tr><th>Age Group</th><th>Traditional TV</th><th>Streaming</th><th>Social Clips</th><th>Mobile Apps</th></tr>
+                        <tr><td>18-24</td><td>18%</td><td>35%</td><td><span class="highlight">42%</span></td><td>5%</td></tr>
+                        <tr><td>25-34</td><td>31%</td><td><span class="highlight">45%</span></td><td>19%</td><td>5%</td></tr>
+                        <tr><td>35-49</td><td><span class="highlight">52%</span></td><td>34%</td><td>9%</td><td>5%</td></tr>
+                        <tr><td>50+</td><td><span class="highlight">74%</span></td><td>18%</td><td>4%</td><td>4%</td></tr>
+                    </table>
+
+                    <h3>Privacy & Data Protection Challenges</h3>
+
+                    <p>AI personalization depends on data collection, creating tension with regulations and consumer expectations:</p>
+
+                    <p><strong>Three Different Privacy Regimes:</strong></p>
+                    <ul>
+                        <li><strong>GDPR</strong> (Europe, affects global companies): Strict consent, right to erasure, data minimization</li>
+                        <li><strong>CCPA/CPRA</strong> (California): Consumer right to know, delete, opt-out of sale</li>
+                        <li><strong>PIPEDA</strong> (Canada): Consent requirements, reasonable purposes, security obligations</li>
+                        <li><strong>Mexican Data Protection Law:</strong> Notice and consent requirements</li>
+                    </ul>
+
+                    <p><strong>Consumer Attitudes on Data Privacy:</strong></p>
+                    <ul>
+                        <li>73% concerned about how personal data is used (Pew 2024)</li>
+                        <li>62% would stop engaging with brand after privacy violation</li>
+                        <li>BUT 79% willing to share data for "significantly better experiences"</li>
+                        <li>Gen Z more comfortable with data sharing if transparent</li>
+                    </ul>
+
+                    <h3>Cybersecurity Imperatives</h3>
+
+                    <p>World Cup designated "high-priority target" for cyberattacks. FIFA requires sponsors meet minimum security standards:</p>
+
+                    <ol>
+                        <li>Network segmentation (World Cup systems isolated from corporate networks)</li>
+                        <li>Multi-factor authentication for all employee access</li>
+                        <li>Data encryption at rest and in transit</li>
+                        <li>Documented incident response plans</li>
+                        <li>Minimum $50M cyber liability insurance</li>
+                        <li>Quarterly security audits by independent firms</li>
+                    </ol>
+
+                    <p><strong>Additional Sponsor Costs:</strong></p>
+                    <ul>
+                        <li>Enhanced cybersecurity measures: $2-4M</li>
+                        <li>Increased cyber insurance premiums: $500K-1M</li>
+                        <li>Incident response retainers: $200-500K</li>
+                        <li><strong>Total cybersecurity add: $3-6M</strong></li>
+                    </ul>
+
+                    <h3>Cultural Marketing Complexity</h3>
+
+                    <p>Three nations require fundamentally different marketing approaches:</p>
+
+                    <table class="data-table">
+                        <tr><th>Nation</th><th>Soccer Interest</th><th>Cultural Context</th><th>Marketing Challenge</th></tr>
+                        <tr><td><strong>USA</strong></td><td>47% overall<br>71% ages 18-24</td><td>Soccer ranks 5th; competes with NFL, NBA, MLB</td><td>Need to overcome "soccer is boring" stereotype</td></tr>
+                        <tr><td><strong>Canada</strong></td><td>58%</td><td>Behind hockey; bilingual requirement (English/French)</td><td>Mandatory dual-language; cultural differences</td></tr>
+                        <tr><td><strong>Mexico</strong></td><td><span class="highlight">89%</span></td><td>Football is dominant; working-class roots</td><td>Authenticity critical; can't be "gringo-ized"</td></tr>
+                    </table>
+
+                    <p>Harvard Business Review research recommends <strong>three-tier localization approach</strong>: Global brand platform (30% budget), National adaptations (50%), Hyper-local activations (20%). Cost: 30-40% more than single global campaign.</p>
+
+                    <div class="callout info">
+                        <h4 style="color: #1565c0; margin-bottom: 10px;">Technology Opportunities vs. Social Risks</h4>
+                        <p style="color: #0d47a1; line-height: 1.7;">
+                            <strong>Opportunities:</strong> AI shows 3-4x engagement improvement, smart stadiums create unprecedented targeting, 
+                            blockchain eliminates fraud
+                        </p>
+                        <p style="color: #0d47a1; line-height: 1.7; margin-top: 10px;">
+                            <strong>Risks:</strong> 62% of young consumers view FIFA negatively, privacy compliance across three jurisdictions complex, 
+                            reputational association with worker rights crisis persists
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let timeRemaining = 25 * 60;
+        let timerInterval;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = `Time Remaining: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 5 * 60 && timeRemaining > 0) {
+                timerEl.style.background = '#ff9800';
+            }
+            if (timeRemaining <= 2 * 60 && timeRemaining > 0) {
+                timerEl.style.background = '#f44336';
+            }
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                timerEl.textContent = 'TIME\'S UP! Begin Presentation';
+                timerEl.style.background = '#d32f2f';
+            } else {
+                timeRemaining--;
+            }
+        }
+
+        window.onload = function() {
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        };
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
